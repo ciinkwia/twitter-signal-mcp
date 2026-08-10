@@ -1,0 +1,58 @@
+{
+  "name": "twitter-signal-mcp",
+  "version": "0.1.0",
+  "mcpName": "io.github.ciinkwia/twitter-signal-mcp",
+  "description": "MCP server for live X/Twitter search and AI trend digests — no Twitter API key, no subscription. Pays per call in USDC on Base via x402 from your own wallet.",
+  "type": "module",
+  "bin": {
+    "twitter-signal-mcp": "src/index.js"
+  },
+  "main": "src/index.js",
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "smoke": "node test/smoke.js",
+    "inspect": "npx @modelcontextprotocol/inspector node src/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "twitter",
+    "x",
+    "tweets",
+    "social-media",
+    "sentiment",
+    "search",
+    "trends",
+    "monitoring",
+    "x402",
+    "claude",
+    "cursor",
+    "agent"
+  ],
+  "license": "MIT",
+  "author": "ciinkwia",
+  "homepage": "https://github.com/ciinkwia/twitter-signal-mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ciinkwia/twitter-signal-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ciinkwia/twitter-signal-mcp/issues"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.18.0",
+    "@coinbase/cdp-sdk": "^1.48.0",
+    "@x402/fetch": "^2.21.0",
+    "@x402/evm": "^2.21.0",
+    "viem": "^2.48.2",
+    "zod": "^3.25.0",
+    "dotenv": "^16.4.5"
+  }
+}

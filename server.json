@@ -1,0 +1,57 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.ciinkwia/twitter-signal-mcp",
+  "description": "Live X/Twitter search and AI trend digests. No Twitter API key — pay per call in USDC via x402.",
+  "repository": {
+    "url": "https://github.com/ciinkwia/twitter-signal-mcp",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "twitter-signal-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "CDP_API_KEY_ID",
+          "description": "Coinbase CDP API key ID for the wallet that pays the per-call USDC fee",
+          "isRequired": true,
+          "isSecret": true,
+          "format": "string"
+        },
+        {
+          "name": "CDP_API_KEY_SECRET",
+          "description": "Coinbase CDP API key secret",
+          "isRequired": true,
+          "isSecret": true,
+          "format": "string"
+        },
+        {
+          "name": "CDP_WALLET_SECRET",
+          "description": "Coinbase CDP wallet secret",
+          "isRequired": true,
+          "isSecret": true,
+          "format": "string"
+        },
+        {
+          "name": "X402_MAX_PRICE",
+          "description": "Hard per-call USD ceiling; requests quoting more are refused before signing (default 0.05)",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string"
+        },
+        {
+          "name": "CDP_ACCOUNT_NAME",
+          "description": "Named CDP account to pay from (created automatically; default twitter-signal-mcp)",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string"
+        }
+      ]
+    }
+  ]
+}
