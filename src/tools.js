@@ -21,7 +21,7 @@ export const TOOLS = [
   {
     name: "x_search",
     tier: "search",
-    priceUsd: "0.05",
+    priceUsd: "0.02",
     title: "X/Twitter search — live tweets ($0.02)",
     description:
       "Search X/Twitter for live posts using full advanced-search syntax. Returns up to 20 of the " +
@@ -29,7 +29,7 @@ export const TOOLS = [
       "engagement (likes, retweets, replies, views). Use for real-time social monitoring, breaking " +
       "news, crypto/stock chatter, brand mentions, competitor tracking, or checking what a specific " +
       "account just posted. No Twitter/X API key required. " +
-      "COSTS $0.05 USDC per call, paid from your configured wallet on Base. " +
+      "COSTS $0.02 USDC per call, paid from your configured wallet on Base. " +
       "For an AI-written trend summary of the same results, use x_digest instead.",
     inputShape,
   },
@@ -45,7 +45,7 @@ export const TOOLS = [
       "tweets are included too. The digest is written only from the returned tweets — nothing invented. " +
       "Use when you want the takeaway rather than 20 raw posts to read. No Twitter/X API key required. " +
       "COSTS $0.05 USDC per call, paid from your configured wallet on Base. " +
-      "For raw tweets only at a third of the price, use x_search.",
+      "For raw tweets only at less than half the price, use x_search.",
     inputShape,
   },
 ];
