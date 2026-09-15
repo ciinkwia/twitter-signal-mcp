@@ -5,8 +5,8 @@ Live **X/Twitter search** and **AI trend digests** inside Claude, Cursor, or any
 cent per call in USDC on Base using [x402](https://x402.org).
 
 ```
-x_search   $0.006/call   up to 20 newest matching tweets + engagement
-x_digest   $0.02/call    the same tweets + an AI-written trend summary
+x_search   $0.02/call    up to 20 newest matching tweets + engagement
+x_digest   $0.05/call    the same tweets + an AI-written trend summary
 ```
 
 ## Why this exists
@@ -18,11 +18,11 @@ and there is nothing to cancel.
 
 ## Tools
 
-### `x_search` — $0.006
+### `x_search` — $0.02
 Full advanced-search syntax. Returns up to 20 newest matches with author handle, follower count,
 text, timestamp, permalink, likes, retweets, replies, and views.
 
-### `x_digest` — $0.02
+### `x_digest` — $0.05
 Everything above **plus** an AI-written digest generated only from the returned tweets:
 
 ```json

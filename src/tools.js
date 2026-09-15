@@ -21,30 +21,30 @@ export const TOOLS = [
   {
     name: "x_search",
     tier: "search",
-    priceUsd: "0.006",
-    title: "X/Twitter search — live tweets ($0.006)",
+    priceUsd: "0.05",
+    title: "X/Twitter search — live tweets ($0.02)",
     description:
       "Search X/Twitter for live posts using full advanced-search syntax. Returns up to 20 of the " +
       "newest matching tweets with author handle, follower count, text, timestamp, permalink, and " +
       "engagement (likes, retweets, replies, views). Use for real-time social monitoring, breaking " +
       "news, crypto/stock chatter, brand mentions, competitor tracking, or checking what a specific " +
       "account just posted. No Twitter/X API key required. " +
-      "COSTS $0.006 USDC per call, paid from your configured wallet on Base. " +
+      "COSTS $0.05 USDC per call, paid from your configured wallet on Base. " +
       "For an AI-written trend summary of the same results, use x_digest instead.",
     inputShape,
   },
   {
     name: "x_digest",
     tier: "digest",
-    priceUsd: "0.02",
-    title: "X/Twitter trend digest — tweets + AI summary ($0.02)",
+    priceUsd: "0.05",
+    title: "X/Twitter trend digest — tweets + AI summary ($0.05)",
     description:
       "Search X/Twitter AND get an AI-written digest of what the results actually say: a 3-5 sentence " +
       "trend summary, overall sentiment (positive/negative/mixed/neutral) with the reason behind it, " +
       "key themes, the accounts driving the conversation, and the most notable post URLs. The raw " +
       "tweets are included too. The digest is written only from the returned tweets — nothing invented. " +
       "Use when you want the takeaway rather than 20 raw posts to read. No Twitter/X API key required. " +
-      "COSTS $0.02 USDC per call, paid from your configured wallet on Base. " +
+      "COSTS $0.05 USDC per call, paid from your configured wallet on Base. " +
       "For raw tweets only at a third of the price, use x_search.",
     inputShape,
   },
