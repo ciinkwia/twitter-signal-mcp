@@ -1,7 +1,8 @@
 // Pure unit tests — no network, no wallet, no CDP env required.
-// Covers: the tool catalog shape (all 4 tools present, priced) and URL
-// building for every tier, including the two new endpoints added 2026-09-14
-// (x_leads -> /x/leads, x_pain_points -> /x/pain-points).
+// Covers: the tool catalog shape (all 11 tools present, priced) and URL
+// building for every tier, including the seven new endpoints added
+// 2026-09-15 (x_user_timeline, x_profile, x_tweet, x_replies,
+// x_find_accounts, x_account_verdict, x_watch).
 //
 // Run: node test/tools.test.mjs  (also `npm test`)
 import assert from "node:assert/strict";
@@ -10,7 +11,23 @@ import { buildUrl } from "../src/datasource.js";
 
 // ---- catalog shape -----------------------------------------------------------
 const names = TOOLS.map((t) => t.name).sort();
-assert.deepEqual(names, ["x_digest", "x_leads", "x_pain_points", "x_search"], "tool catalog should list all 4 tools");
+assert.deepEqual(
+  names,
+  [
+    "x_account_verdict",
+    "x_digest",
+    "x_find_accounts",
+    "x_leads",
+    "x_pain_points",
+    "x_profile",
+    "x_replies",
+    "x_search",
+    "x_tweet",
+    "x_user_timeline",
+    "x_watch",
+  ],
+  "tool catalog should list all 11 tools"
+);
 
 for (const tool of TOOLS) {
   assert.ok(TIER_PATHS[tool.tier], `tool ${tool.name} has no TIER_PATHS entry for tier "${tool.tier}"`);
@@ -23,7 +40,19 @@ assert.equal(byName.x_leads.priceUsd, "0.05");
 assert.equal(byName.x_pain_points.priceUsd, "0.05");
 assert.ok("max" in byName.x_leads.inputShape, "x_leads inputShape should declare optional max");
 assert.ok("product" in byName.x_pain_points.inputShape, "x_pain_points inputShape should declare product");
-console.log("tool catalog: OK (4 tools, all priced with an inputShape)");
+
+assert.equal(byName.x_user_timeline.priceUsd, "0.02");
+assert.equal(byName.x_profile.priceUsd, "0.02");
+assert.equal(byName.x_tweet.priceUsd, "0.01");
+assert.equal(byName.x_replies.priceUsd, "0.02");
+assert.equal(byName.x_find_accounts.priceUsd, "0.02");
+assert.equal(byName.x_account_verdict.priceUsd, "0.02");
+assert.equal(byName.x_watch.priceUsd, "0.05");
+assert.ok("username" in byName.x_user_timeline.inputShape, "x_user_timeline should declare username");
+assert.ok("id" in byName.x_tweet.inputShape, "x_tweet should declare id");
+assert.ok("since" in byName.x_watch.inputShape, "x_watch should declare optional since");
+
+console.log("tool catalog: OK (11 tools, all priced with an inputShape)");
 
 // ---- URL building --------------------------------------------------------------
 const BASE = "https://clink-lithium-vault.fly.dev";
@@ -55,3 +84,37 @@ assert.equal(painUrl.searchParams.get("product"), "Cursor");
 assert.equal(painUrl.searchParams.has("query"), false, "x_pain_points must not send a query param");
 
 console.log("URL building: OK (search, digest, leads [with/without max], pain-points)");
+
+// x_user_timeline / x_profile / x_account_verdict: username
+const timelineUrl = new URL(buildUrl(BASE, TIER_PATHS.user, { username: "elonmusk" }));
+assert.equal(timelineUrl.pathname, "/x/user");
+assert.equal(timelineUrl.searchParams.get("username"), "elonmusk");
+
+const profileUrl = new URL(buildUrl(BASE, TIER_PATHS.profile, { username: "elonmusk" }));
+assert.equal(profileUrl.pathname, "/x/profile");
+
+const verdictUrl = new URL(buildUrl(BASE, TIER_PATHS.account_verdict, { username: "elonmusk" }));
+assert.equal(verdictUrl.pathname, "/x/account-verdict");
+
+// x_tweet / x_replies: id
+const tweetUrl = new URL(buildUrl(BASE, TIER_PATHS.tweet, { id: "1859012345678901234" }));
+assert.equal(tweetUrl.pathname, "/x/tweet");
+assert.equal(tweetUrl.searchParams.get("id"), "1859012345678901234");
+
+const repliesUrl = new URL(buildUrl(BASE, TIER_PATHS.replies, { id: "1859012345678901234" }));
+assert.equal(repliesUrl.pathname, "/x/replies");
+
+// x_find_accounts: query
+const findUrl = new URL(buildUrl(BASE, TIER_PATHS.users, { query: "solar tech" }));
+assert.equal(findUrl.pathname, "/x/users");
+assert.equal(findUrl.searchParams.get("query"), "solar tech");
+
+// x_watch: query + optional since
+const watchUrl = new URL(buildUrl(BASE, TIER_PATHS.watch, { query: "$NVDA", since: "1859000000000000000" }));
+assert.equal(watchUrl.pathname, "/x/watch");
+assert.equal(watchUrl.searchParams.get("since"), "1859000000000000000");
+
+const watchNoSince = new URL(buildUrl(BASE, TIER_PATHS.watch, { query: "$NVDA", since: undefined }));
+assert.equal(watchNoSince.searchParams.has("since"), false, "omitted since must not appear in the URL");
+
+console.log("URL building: OK (user, profile, account-verdict, tweet, replies, users, watch)");

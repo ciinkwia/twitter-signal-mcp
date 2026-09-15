@@ -5,10 +5,17 @@ Live **X/Twitter search** and **AI trend digests** inside Claude, Cursor, or any
 cent per call in USDC on Base using [x402](https://x402.org).
 
 ```
-x_search        $0.02/call    up to 20 newest matching tweets + engagement
-x_digest        $0.05/call    the same tweets + an AI-written trend summary
-x_leads         $0.05/call    the people behind matching posts, enriched (bio, website, emails, followers)
-x_pain_points   $0.05/call    clustered complaints / feature requests / praise for a product, with quotes
+x_search           $0.02/call    up to 20 newest matching tweets + engagement
+x_digest           $0.05/call    the same tweets + an AI-written trend summary
+x_leads            $0.05/call    the people behind matching posts, enriched (bio, website, emails, followers)
+x_pain_points      $0.05/call    clustered complaints / feature requests / praise for a product, with quotes
+x_user_timeline    $0.02/call    one account's own recent posts
+x_profile          $0.02/call    one account's bio, stats, and links
+x_tweet            $0.01/call    one tweet by ID, full text + engagement
+x_replies          $0.02/call    the reply thread under one tweet
+x_find_accounts    $0.02/call    accounts matching a name/topic, not posts
+x_account_verdict  $0.02/call    AI read on whether an account is worth engaging
+x_watch            $0.05/call    only the posts newer than your last check
 ```
 
 ## Why this exists
@@ -70,7 +77,39 @@ from live X posts, with verbatim quotes and URLs:
 Input: `product` (required — a name or an X handle). Use for product research, competitor research,
 churn signals, roadmap input.
 
-### Query syntax (`x_search`, `x_digest`, `x_leads`)
+### `x_user_timeline` — $0.02
+An account's own recent posts (originals, replies, retweets), newest first. Input: `username`
+(required). Use: `x_user_timeline username="elonmusk"` to track a competitor's or founder's own feed.
+
+### `x_profile` — $0.02
+One account's bio, website, location, join date, follower/following counts, and verified status.
+Input: `username` (required). Use: `x_profile username="cursor_ai"` to qualify a lead before you
+reach out.
+
+### `x_tweet` — $0.01
+One tweet by numeric ID: full text, author, timestamp, permalink, engagement. Input: `id` (required).
+Use: `x_tweet id="1859012345678901234"` to re-check a specific post you already found.
+
+### `x_replies` — $0.02
+The reply thread under one tweet, newest first. Input: `id` (required, same as `x_tweet`). Use:
+`x_replies id="1859012345678901234"` to see how people reacted to a specific post.
+
+### `x_find_accounts` — $0.02
+Search for ACCOUNTS matching a name, keyword, or topic — not posts. Input: `query` (required, same
+syntax as `x_search`). Use: `x_find_accounts query="solar installer hawaii"` to build a shortlist of
+accounts to follow up on.
+
+### `x_account_verdict` — $0.02
+A short AI-written read on one account: what it's about, how active/engaged it is, and whether it's
+worth following up with. Input: `username` (required). Use: `x_account_verdict username="someone"`
+to triage a lead fast without reading the profile yourself.
+
+### `x_watch` — $0.05
+Same search as `x_search`, but only returns posts newer than a cursor you supply. Inputs: `query`
+(required), `since` (optional — an ISO timestamp or the `cursor.newest_id` from your last `x_watch`
+call). Use: poll a brand/ticker/hashtag on a schedule without re-paying for posts you've already seen.
+
+### Query syntax (`x_search`, `x_digest`, `x_leads`, `x_find_accounts`, `x_watch`)
 Both tools take one `query` string:
 
 | Pattern | Example |
@@ -107,7 +146,9 @@ Create one at [portal.cdp.coinbase.com](https://portal.cdp.coinbase.com) (API ke
 ```
 
 `X402_MAX_PRICE` is a hard per-call ceiling in USD. If the endpoint ever quotes more than this,
-the request is refused **before** anything is signed — no charge.
+the request is refused **before** anything is signed — no charge. The default `0.05` already covers
+every tool above (the priciest are `x_digest`, `x_leads`, `x_pain_points`, and `x_watch` at $0.05) —
+you don't need to raise it.
 
 ## Cost & safety
 
