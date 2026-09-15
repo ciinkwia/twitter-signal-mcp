@@ -1,4 +1,4 @@
-// DataSource — resolves a (tier, {query}) request into a result:
+// DataSource — resolves a (tier, params) request into a result:
 //   { ok: true, data }                      on success
 //   { ok: false, error, status, body }      on a handled failure
 //
@@ -10,6 +10,20 @@
 import { TIER_PATHS } from "./tools.js";
 
 const usd = (atomic) => "$" + (Number(atomic) / 1e6).toFixed(3);
+
+// Pure URL builder, exported for testing without a network/wallet. Every tool
+// declares its own zod `inputShape` (tools.js) and index.js passes whatever
+// params the caller supplied straight through here — no per-tool mapping to
+// maintain as tools are added (x_search/x_digest take `query`; x_leads takes
+// `query` + optional `max`; x_pain_points takes `product`).
+export function buildUrl(baseUrl, path, params = {}) {
+  const url = new URL(`${baseUrl.replace(/\/+$/, "")}${path}`);
+  for (const [key, value] of Object.entries(params)) {
+    if (value === undefined || value === null || value === "") continue;
+    url.searchParams.set(key, String(value));
+  }
+  return url.toString();
+}
 
 export class X402DataSource {
   /**
@@ -64,11 +78,14 @@ export class X402DataSource {
     return { blocked: false };
   }
 
-  async fetchTier(tier, { query }) {
+  // `params` is whatever the calling tool's inputShape declared (e.g.
+  // { query } for x_search/x_digest, { query, max } for x_leads, { product }
+  // for x_pain_points) — passed straight through to the matching endpoint.
+  async fetchTier(tier, params = {}) {
     const path = TIER_PATHS[tier];
     if (!path) return { ok: false, error: `Unknown tier "${tier}".`, status: 0 };
 
-    const url = `${this.baseUrl}${path}?query=${encodeURIComponent(query)}`;
+    const url = buildUrl(this.baseUrl, path, params);
 
     const guard = await this._priceGuard(url);
     if (guard.blocked) return { ok: false, status: 0, error: guard.error };

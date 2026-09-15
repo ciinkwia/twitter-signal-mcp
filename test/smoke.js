@@ -50,7 +50,7 @@ for (const t of tools) {
 }
 
 const names = tools.map((t) => t.name).sort();
-const expected = ["x_digest", "x_search"];
+const expected = ["x_digest", "x_leads", "x_pain_points", "x_search"];
 const ok = JSON.stringify(names) === JSON.stringify(expected);
 console.log(`\nTool catalog ${ok ? "OK" : "*** MISMATCH ***"}`);
 

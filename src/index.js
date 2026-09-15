@@ -40,7 +40,7 @@ async function main() {
   const { paidFetch, address } = await makePaidFetch({ accountName: ACCOUNT, maxAtomic });
   const dataSource = new X402DataSource({ baseUrl: BASE_URL, paidFetch, maxAtomic });
 
-  const server = new McpServer({ name: "twitter-signal-mcp", version: "0.1.0" });
+  const server = new McpServer({ name: "twitter-signal-mcp", version: "0.2.0" });
 
   for (const tool of TOOLS) {
     server.registerTool(
@@ -50,8 +50,8 @@ async function main() {
         description: tool.description,
         inputSchema: tool.inputShape,
       },
-      async ({ query }) => {
-        const result = await dataSource.fetchTier(tool.tier, { query });
+      async (params) => {
+        const result = await dataSource.fetchTier(tool.tier, params);
         if (!result.ok) {
           return { isError: true, content: [{ type: "text", text: result.error }] };
         }

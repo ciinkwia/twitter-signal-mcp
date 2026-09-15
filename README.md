@@ -5,8 +5,10 @@ Live **X/Twitter search** and **AI trend digests** inside Claude, Cursor, or any
 cent per call in USDC on Base using [x402](https://x402.org).
 
 ```
-x_search   $0.02/call    up to 20 newest matching tweets + engagement
-x_digest   $0.05/call    the same tweets + an AI-written trend summary
+x_search        $0.02/call    up to 20 newest matching tweets + engagement
+x_digest        $0.05/call    the same tweets + an AI-written trend summary
+x_leads         $0.05/call    the people behind matching posts, enriched (bio, website, emails, followers)
+x_pain_points   $0.05/call    clustered complaints / feature requests / praise for a product, with quotes
 ```
 
 ## Why this exists
@@ -38,7 +40,37 @@ Everything above **plus** an AI-written digest generated only from the returned 
 
 Use `x_digest` when you want the takeaway; `x_search` when you want the raw posts.
 
-### Query syntax
+### `x_leads` — $0.05
+Same advanced-search syntax as `x_search`, but returns the PEOPLE behind the matching posts
+instead of the posts themselves — enriched with bio, website, emails found in the bio, follower
+count, location, a DM-open flag, and every matching post per person:
+
+```json
+{
+  "result_count": 20,
+  "lead_count": 8,
+  "leads": [{ "username": "someone", "followers": 5000, "emails": [], "matched_posts": [] }]
+}
+```
+
+Inputs: `query` (required, same syntax as `x_search`), `max` (optional, `"20"` or `"40"` — default 20).
+Use for recruiting, cofounder search, B2B lead generation, influencer discovery, community sourcing.
+
+### `x_pain_points` — $0.05
+Pass a product or brand name/handle, get clustered complaints, feature requests, and praise mined
+from live X posts, with verbatim quotes and URLs:
+
+```json
+{
+  "product": "Cursor",
+  "analysis": { "summary": "...", "pain_points": [{ "theme": "...", "count": 4, "severity": "medium" }] }
+}
+```
+
+Input: `product` (required — a name or an X handle). Use for product research, competitor research,
+churn signals, roadmap input.
+
+### Query syntax (`x_search`, `x_digest`, `x_leads`)
 Both tools take one `query` string:
 
 | Pattern | Example |

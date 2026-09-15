@@ -1,17 +1,17 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ciinkwia/twitter-signal-mcp",
-  "description": "Live X/Twitter search and AI trend digests. No Twitter API key — pay per call in USDC via x402.",
+  "description": "Live X/Twitter search, lead finding, pain-point mining, and AI trend digests. No Twitter API key — pay per call in USDC via x402.",
   "repository": {
     "url": "https://github.com/ciinkwia/twitter-signal-mcp",
     "source": "github"
   },
-  "version": "0.1.0",
+  "version": "0.2.0",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "twitter-signal-mcp",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "transport": {
         "type": "stdio"
       },

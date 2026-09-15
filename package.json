@@ -1,6 +1,6 @@
 {
   "name": "twitter-signal-mcp",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "mcpName": "io.github.ciinkwia/twitter-signal-mcp",
   "description": "MCP server for live X/Twitter search and AI trend digests — no Twitter API key, no subscription. Pays per call in USDC on Base via x402 from your own wallet.",
   "type": "module",
@@ -17,6 +17,7 @@
   },
   "scripts": {
     "start": "node src/index.js",
+    "test": "node test/tools.test.mjs",
     "smoke": "node test/smoke.js",
     "inspect": "npx @modelcontextprotocol/inspector node src/index.js"
   },
