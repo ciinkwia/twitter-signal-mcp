@@ -50,9 +50,21 @@ for (const t of tools) {
 }
 
 const names = tools.map((t) => t.name).sort();
-const expected = ["x_digest", "x_leads", "x_pain_points", "x_search"];
+// Every /x/* route the shop sells (0.3.0 mirrors all of them - see the
+// MCP-mirror rule in clink-wallet/CLAUDE.md). Update together with src/tools.js.
+const expected = [
+  "x_account_verdict", "x_digest", "x_find_accounts", "x_leads", "x_pain_points",
+  "x_profile", "x_replies", "x_search", "x_tweet", "x_user_timeline", "x_watch",
+].sort();
 const ok = JSON.stringify(names) === JSON.stringify(expected);
 console.log(`\nTool catalog ${ok ? "OK" : "*** MISMATCH ***"}`);
+if (!ok) {
+  // Was a print-only warning, so the stale 0.2.0 list survived the bump to
+  // 0.3.0 unnoticed. Fail the run instead.
+  console.error("  expected:", expected.join(", "));
+  console.error("  actual:  ", names.join(", "));
+  process.exitCode = 1;
+}
 
 if (PAY) {
   console.log('\n--- paid call: x_search { query: "lithium min_faves:20" } ---');
