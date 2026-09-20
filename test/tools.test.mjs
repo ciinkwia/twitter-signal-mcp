@@ -118,3 +118,25 @@ const watchNoSince = new URL(buildUrl(BASE, TIER_PATHS.watch, { query: "$NVDA", 
 assert.equal(watchNoSince.searchParams.has("since"), false, "omitted since must not appear in the URL");
 
 console.log("URL building: OK (user, profile, account-verdict, tweet, replies, users, watch)");
+
+// x_search paging: cursor is declared and passed through
+{
+  const search = TOOLS.find((t) => t.name === "x_search");
+  assert.ok(search.inputShape.cursor, "x_search must accept a cursor");
+  const u = new URL(buildUrl(BASE, TIER_PATHS.search, { query: "x402", cursor: "abc=/+" }));
+  assert.equal(u.searchParams.get("cursor"), "abc=/+");
+}
+
+// Empty = free: the shop's 404 no_results is an answer, not an error
+{
+  const { X402DataSource } = await import("../src/datasource.js");
+  const fake = async () => new Response(JSON.stringify({ error: "no_results", message: "not charged", result_count: 0, tweets: [] }), { status: 404, headers: { "content-type": "application/json" } });
+  const ds = new X402DataSource({ baseUrl: BASE, paidFetch: fake });
+  const r = await ds.fetchTier("search", { query: "zzz" });
+  assert.equal(r.ok, true);
+  assert.equal(r.data.charged, false);
+  assert.equal(r.data.result_count, 0);
+  const other = new X402DataSource({ baseUrl: BASE, paidFetch: async () => new Response("{}", { status: 404, headers: { "content-type": "application/json" } }) });
+  assert.equal((await other.fetchTier("search", { query: "zzz" })).ok, false);
+}
+console.log("friction promises: OK (cursor paging, no_results = not charged)");

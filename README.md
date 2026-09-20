@@ -29,7 +29,9 @@ and there is nothing to cancel.
 
 ### `x_search` — $0.02
 Full advanced-search syntax. Returns up to 20 newest matches with author handle, follower count,
-text, timestamp, permalink, likes, retweets, replies, and views.
+text, timestamp, permalink, likes, retweets, replies, and views. **Need more than 20?** A full
+answer ends with `next.older` — pass its `cursor` value back (same `query`) for the next 20 older
+matches, $0.02 a page. No slicing dates by hand.
 
 ### `x_digest` — $0.05
 Everything above **plus** an AI-written digest generated only from the returned tweets:
@@ -108,6 +110,7 @@ to triage a lead fast without reading the profile yourself.
 Same search as `x_search`, but only returns posts newer than a cursor you supply. Inputs: `query`
 (required), `since` (optional — an ISO timestamp or the `cursor.newest_id` from your last `x_watch`
 call). Use: poll a brand/ticker/hashtag on a schedule without re-paying for posts you've already seen.
+**A check that finds nothing new is not charged** — you only pay when there is news.
 
 ### Query syntax (`x_search`, `x_digest`, `x_leads`, `x_find_accounts`, `x_watch`)
 Both tools take one `query` string:
@@ -154,6 +157,11 @@ you don't need to raise it.
 
 - You are only ever charged for a successful response. Invalid queries are rejected **before**
   payment (HTTP 400, no settlement).
+- **Nothing found = nothing charged.** An empty `x_search` / `x_digest` / `x_leads` /
+  `x_pain_points` / `x_watch` comes back as `no_results` with `charged: false` — the payment is
+  never settled.
+- **Same call within 10 minutes = free.** Repeat the exact call from the same wallet and you get
+  the saved answer (`meta.charged: false`) at no cost.
 - If the upstream tweet source fails after payment, the API returns an explicit `error` and logs
   the call for refund rather than pretending it worked.
 - Gas is covered by the facilitator — you spend USDC only.

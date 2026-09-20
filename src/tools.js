@@ -20,6 +20,20 @@ const searchInputShape = {
   query: z.string().min(1).max(500).describe(QUERY_DESC),
 };
 
+// x_search only: page deeper than 20 results.
+const searchPagedInputShape = {
+  ...searchInputShape,
+  cursor: z
+    .string()
+    .max(600)
+    .optional()
+    .describe(
+      "Paging cursor. When an answer is full (20 tweets) it ends with `next.older` — a URL whose " +
+        "`cursor=` value you pass here, with the SAME query, to get the next 20 older matches. " +
+        "Omit on the first call. Each page costs $0.02."
+    ),
+};
+
 const usernameShape = {
   username: z.string().min(1).max(100).describe("X/Twitter handle, with or without the leading @, e.g. \"elonmusk\"."),
 };
@@ -41,8 +55,11 @@ export const TOOLS = [
       "news, crypto/stock chatter, brand mentions, competitor tracking, or checking what a specific " +
       "account just posted. No Twitter/X API key required. " +
       "COSTS $0.02 USDC per call, paid from your configured wallet on Base. " +
+      "No results = no charge, and the same call repeated within 10 minutes is free. " +
+      "Need more than 20? Don't slice dates by hand — pass the `cursor` from the answer's `next.older` " +
+      "to page back 20 older matches at a time. " +
       "For an AI-written trend summary of the same results, use x_digest instead.",
-    inputShape: searchInputShape,
+    inputShape: searchPagedInputShape,
   },
   {
     name: "x_digest",
@@ -56,6 +73,7 @@ export const TOOLS = [
       "tweets are included too. The digest is written only from the returned tweets — nothing invented. " +
       "Use when you want the takeaway rather than 20 raw posts to read. No Twitter/X API key required. " +
       "COSTS $0.05 USDC per call, paid from your configured wallet on Base. " +
+      "No results = no charge, and the same call repeated within 10 minutes is free. " +
       "For raw tweets only at less than half the price, use x_search.",
     inputShape: searchInputShape,
   },
@@ -70,6 +88,7 @@ export const TOOLS = [
       "Use for recruiting, cofounder search, B2B lead generation, influencer discovery, or community " +
       "sourcing — when you want contactable people, not raw tweets. No Twitter/X API key required. " +
       "COSTS $0.05 USDC per call, paid from your configured wallet on Base. " +
+      "No results = no charge, and the same call repeated within 10 minutes is free. " +
       "For raw tweets instead, use x_search ($0.02).",
     inputShape: {
       query: z.string().min(1).max(500).describe(QUERY_DESC),
@@ -89,6 +108,7 @@ export const TOOLS = [
       "mined from live X posts, with verbatim quotes and URLs. Use for product research, competitor " +
       "research, churn signals, or roadmap input. No Twitter/X API key required. " +
       "COSTS $0.05 USDC per call, paid from your configured wallet on Base. " +
+      "No results = no charge, and the same call repeated within 10 minutes is free. " +
       "For a general trend summary instead, use x_digest.",
     inputShape: {
       product: z.string().min(1).max(200).describe("Product or brand name, or an X handle, e.g. \"Cursor\" or \"@cursor_ai\"."),
@@ -189,7 +209,8 @@ export const TOOLS = [
       "the new matching tweets plus a fresh `cursor.newest_id` to pass next time. Use for polling a query " +
       "on a schedule (a brand, ticker, or hashtag) without re-fetching or re-paying for posts you've " +
       "already seen. No Twitter/X API key required. " +
-      "COSTS $0.05 USDC per call, paid from your configured wallet on Base. " +
+      "COSTS $0.05 USDC per call — and ONLY when there is something new: a check that finds nothing " +
+      "new is not charged, so polling on a schedule is safe. " +
       "For a one-off search with no cursor, use x_search ($0.02) instead.",
     inputShape: {
       query: z.string().min(1).max(500).describe(QUERY_DESC),

@@ -118,6 +118,13 @@ export class X402DataSource {
       return { ok: true, data: body };
     }
 
+    // Empty = free (shop, 2026-09-19): nothing matched, so the shop answers
+    // 404 no_results and never settles the payment. That is a real answer, not
+    // a failure — hand it to the agent as data so it can loosen the query.
+    if (res.status === 404 && body && body.error === "no_results") {
+      return { ok: true, data: { ...body, charged: false } };
+    }
+
     if (res.status === 400) {
       return {
         ok: false,
