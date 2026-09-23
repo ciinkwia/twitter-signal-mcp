@@ -1,6 +1,6 @@
 // Tool catalog — transport- and payment-agnostic.
 //
-// Eleven tools, mirroring the eleven paid tiers of the X Signal API. Kept
+// Twelve tools, mirroring the twelve paid tiers of the X Signal API. Kept
 // separate (rather than one tool with a `mode` arg) so the price of each is
 // explicit in the tool description and the agent must deliberately choose the
 // pricier tier. Each tool declares its OWN `inputShape` — the MCP wiring in
@@ -225,6 +225,24 @@ export const TOOLS = [
         ),
     },
   },
+  {
+    name: "x_ticker_pulse",
+    tier: "ticker_pulse",
+    priceUsd: "0.02",
+    title: "X/Twitter pulse for one US stock ticker ($0.02)",
+    description:
+      "Facts about X/Twitter activity for one US stock ticker, built for trading agents: post volume vs " +
+      "the prior window, top posts by likes, most active accounts, and keyword topic flags (earnings, " +
+      "guidance, lawsuit, SEC investigation, recall, M&A, layoffs, upgrade/downgrade, short report, " +
+      "dividend, buyback, CEO). FACTS ONLY — counts and keyword matches, never a sentiment verdict, " +
+      "price target, or buy/sell/hold signal. No Twitter/X API key required. " +
+      "COSTS $0.02 USDC per call, paid from your configured wallet on Base. " +
+      "For raw tweets about a ticker instead, use x_search with a $cashtag query.",
+    inputShape: {
+      ticker: z.string().min(1).max(7).describe("A US stock ticker, 1-6 letters, with or without a leading $, e.g. \"TSLA\" or \"$TSLA\"."),
+      window: z.enum(["24h", "7d"]).optional().describe("Lookback window — 24h (default) or 7d."),
+    },
+  },
 ];
 
 // tier -> API path. Kept next to the catalog so adding a tier is a one-file edit.
@@ -240,4 +258,5 @@ export const TIER_PATHS = {
   users: "/x/users",
   account_verdict: "/x/account-verdict",
   watch: "/x/watch",
+  ticker_pulse: "/x/ticker-pulse",
 };

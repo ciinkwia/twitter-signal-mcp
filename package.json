@@ -1,6 +1,6 @@
 {
   "name": "twitter-signal-mcp",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "mcpName": "io.github.ciinkwia/twitter-signal-mcp",
   "description": "MCP server for live X/Twitter search and AI trend digests — no Twitter API key, no subscription. Pays per call in USDC on Base via x402 from your own wallet.",
   "type": "module",

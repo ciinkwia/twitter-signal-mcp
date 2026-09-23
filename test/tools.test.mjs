@@ -1,8 +1,8 @@
 // Pure unit tests — no network, no wallet, no CDP env required.
-// Covers: the tool catalog shape (all 11 tools present, priced) and URL
-// building for every tier, including the seven new endpoints added
-// 2026-09-15 (x_user_timeline, x_profile, x_tweet, x_replies,
-// x_find_accounts, x_account_verdict, x_watch).
+// Covers: the tool catalog shape (all 12 tools present, priced) and URL
+// building for every tier, including the seven endpoints added 2026-09-15
+// (x_user_timeline, x_profile, x_tweet, x_replies, x_find_accounts,
+// x_account_verdict, x_watch) and x_ticker_pulse added 2026-09-22.
 //
 // Run: node test/tools.test.mjs  (also `npm test`)
 import assert from "node:assert/strict";
@@ -22,11 +22,12 @@ assert.deepEqual(
     "x_profile",
     "x_replies",
     "x_search",
+    "x_ticker_pulse",
     "x_tweet",
     "x_user_timeline",
     "x_watch",
   ],
-  "tool catalog should list all 11 tools"
+  "tool catalog should list all 12 tools"
 );
 
 for (const tool of TOOLS) {
@@ -52,7 +53,13 @@ assert.ok("username" in byName.x_user_timeline.inputShape, "x_user_timeline shou
 assert.ok("id" in byName.x_tweet.inputShape, "x_tweet should declare id");
 assert.ok("since" in byName.x_watch.inputShape, "x_watch should declare optional since");
 
-console.log("tool catalog: OK (11 tools, all priced with an inputShape)");
+assert.equal(byName.x_ticker_pulse.priceUsd, "0.02");
+assert.ok("ticker" in byName.x_ticker_pulse.inputShape, "x_ticker_pulse should declare ticker");
+assert.ok("window" in byName.x_ticker_pulse.inputShape, "x_ticker_pulse should declare optional window");
+assert.equal(TIER_PATHS.ticker_pulse, "/x/ticker-pulse");
+assert.equal(buildUrl("https://x.test", TIER_PATHS.ticker_pulse, { ticker: "TSLA", window: "24h" }), "https://x.test/x/ticker-pulse?ticker=TSLA&window=24h");
+
+console.log("tool catalog: OK (12 tools, all priced with an inputShape)");
 
 // ---- URL building --------------------------------------------------------------
 const BASE = "https://clink-lithium-vault.fly.dev";

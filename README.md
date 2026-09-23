@@ -16,6 +16,7 @@ x_replies          $0.02/call    the reply thread under one tweet
 x_find_accounts    $0.02/call    accounts matching a name/topic, not posts
 x_account_verdict  $0.02/call    AI read on whether an account is worth engaging
 x_watch            $0.05/call    only the posts newer than your last check
+x_ticker_pulse     $0.02/call    facts about a US stock ticker's X activity — no sentiment/advice
 ```
 
 ## Why this exists
@@ -111,6 +112,15 @@ Same search as `x_search`, but only returns posts newer than a cursor you supply
 (required), `since` (optional — an ISO timestamp or the `cursor.newest_id` from your last `x_watch`
 call). Use: poll a brand/ticker/hashtag on a schedule without re-paying for posts you've already seen.
 **A check that finds nothing new is not charged** — you only pay when there is news.
+
+### `x_ticker_pulse` — $0.02
+Facts about one US stock ticker's X/Twitter activity, built for trading agents: post volume vs the
+prior window, top posts by likes, most active accounts, and keyword topic flags (earnings,
+guidance, lawsuit, SEC investigation, recall, M&A, layoffs, upgrade/downgrade, short report,
+dividend, buyback, CEO). Inputs: `ticker` (required, 1-6 letters, with or without a leading `$`),
+`window` (optional, `24h` default or `7d`). Use: `x_ticker_pulse ticker="TSLA" window="24h"`.
+**FACTS ONLY** — counts and keyword matches, never a sentiment verdict, price target, or
+buy/sell/hold signal.
 
 ### Query syntax (`x_search`, `x_digest`, `x_leads`, `x_find_accounts`, `x_watch`)
 Both tools take one `query` string:
