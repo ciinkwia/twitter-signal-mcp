@@ -40,7 +40,7 @@ async function main() {
   const { paidFetch, address } = await makePaidFetch({ accountName: ACCOUNT, maxAtomic });
   const dataSource = new X402DataSource({ baseUrl: BASE_URL, paidFetch, maxAtomic });
 
-  const server = new McpServer({ name: "twitter-signal-mcp", version: "0.4.0" });
+  const server = new McpServer({ name: "twitter-signal-mcp", version: "0.5.0" });
 
   for (const tool of TOOLS) {
     server.registerTool(

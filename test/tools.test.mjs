@@ -16,8 +16,13 @@ assert.deepEqual(
   [
     "x_account_verdict",
     "x_digest",
+    "x_engagers",
     "x_find_accounts",
+    "x_followers",
+    "x_following",
     "x_leads",
+    "x_list",
+    "x_mentions",
     "x_pain_points",
     "x_profile",
     "x_replies",
@@ -27,7 +32,7 @@ assert.deepEqual(
     "x_user_timeline",
     "x_watch",
   ],
-  "tool catalog should list all 12 tools"
+  "tool catalog should list all 17 tools"
 );
 
 for (const tool of TOOLS) {
@@ -59,7 +64,29 @@ assert.ok("window" in byName.x_ticker_pulse.inputShape, "x_ticker_pulse should d
 assert.equal(TIER_PATHS.ticker_pulse, "/x/ticker-pulse");
 assert.equal(buildUrl("https://x.test", TIER_PATHS.ticker_pulse, { ticker: "TSLA", window: "24h" }), "https://x.test/x/ticker-pulse?ticker=TSLA&window=24h");
 
-console.log("tool catalog: OK (12 tools, all priced with an inputShape)");
+// Watchlist-buyer build (2026-09-25): x_list, x_followers, x_following, x_mentions, x_engagers.
+assert.equal(byName.x_list.priceUsd, "0.05");
+assert.ok("handles" in byName.x_list.inputShape, "x_list should declare handles");
+assert.ok("since" in byName.x_list.inputShape, "x_list should declare optional since");
+assert.ok("limit" in byName.x_list.inputShape, "x_list should declare optional limit");
+assert.equal(TIER_PATHS.list, "/x/list");
+
+assert.equal(byName.x_followers.priceUsd, "0.02");
+assert.equal(byName.x_following.priceUsd, "0.02");
+assert.equal(byName.x_mentions.priceUsd, "0.02");
+for (const t of ["x_followers", "x_following", "x_mentions"]) {
+  assert.ok("username" in byName[t].inputShape, `${t} should declare username`);
+  assert.ok("cursor" in byName[t].inputShape, `${t} should declare optional cursor`);
+}
+assert.equal(TIER_PATHS.followers, "/x/followers");
+assert.equal(TIER_PATHS.following, "/x/following");
+assert.equal(TIER_PATHS.mentions, "/x/mentions");
+
+assert.equal(byName.x_engagers.priceUsd, "0.05");
+assert.ok("id" in byName.x_engagers.inputShape, "x_engagers should declare id");
+assert.equal(TIER_PATHS.engagers, "/x/engagers");
+
+console.log("tool catalog: OK (17 tools, all priced with an inputShape)");
 
 // ---- URL building --------------------------------------------------------------
 const BASE = "https://clink-lithium-vault.fly.dev";
@@ -147,3 +174,34 @@ console.log("URL building: OK (user, profile, account-verdict, tweet, replies, u
   assert.equal((await other.fetchTier("search", { query: "zzz" })).ok, false);
 }
 console.log("friction promises: OK (cursor paging, no_results = not charged)");
+
+// x_list: handles + optional since/limit
+{
+  const listUrl = new URL(buildUrl(BASE, TIER_PATHS.list, { handles: "elonmusk,naval,balajis", since: "1967000000000000001", limit: "10" }));
+  assert.equal(listUrl.pathname, "/x/list");
+  assert.equal(listUrl.searchParams.get("handles"), "elonmusk,naval,balajis");
+  assert.equal(listUrl.searchParams.get("since"), "1967000000000000001");
+  assert.equal(listUrl.searchParams.get("limit"), "10");
+  const listNoExtras = new URL(buildUrl(BASE, TIER_PATHS.list, { handles: "a,b", since: undefined, limit: undefined }));
+  assert.equal(listNoExtras.searchParams.has("since"), false);
+  assert.equal(listNoExtras.searchParams.has("limit"), false);
+}
+
+// x_followers / x_following / x_mentions: username + optional cursor
+for (const [tier, path] of [["followers", "/x/followers"], ["following", "/x/following"], ["mentions", "/x/mentions"]]) {
+  const u = new URL(buildUrl(BASE, TIER_PATHS[tier], { username: "elonmusk", cursor: "abc123" }));
+  assert.equal(u.pathname, path);
+  assert.equal(u.searchParams.get("username"), "elonmusk");
+  assert.equal(u.searchParams.get("cursor"), "abc123");
+  const uNoCursor = new URL(buildUrl(BASE, TIER_PATHS[tier], { username: "elonmusk", cursor: undefined }));
+  assert.equal(uNoCursor.searchParams.has("cursor"), false, `omitted cursor must not appear in the URL for ${tier}`);
+}
+
+// x_engagers: id
+{
+  const u = new URL(buildUrl(BASE, TIER_PATHS.engagers, { id: "1878000000000000000" }));
+  assert.equal(u.pathname, "/x/engagers");
+  assert.equal(u.searchParams.get("id"), "1878000000000000000");
+}
+
+console.log("URL building: OK (list, followers, following, mentions, engagers)");

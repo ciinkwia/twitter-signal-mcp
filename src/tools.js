@@ -42,6 +42,19 @@ const tweetIdShape = {
   id: z.string().min(1).max(40).describe("Numeric X/Twitter tweet/post ID, e.g. \"1859012345678901234\" — found at the end of a tweet's permalink."),
 };
 
+// x_followers/x_following/x_mentions: one page + an optional cursor.
+const usernamePagedShape = {
+  ...usernameShape,
+  cursor: z
+    .string()
+    .max(1000)
+    .optional()
+    .describe(
+      "Paging cursor. When an answer has more pages it ends with `next.older` — a URL whose `cursor=` " +
+        "value you pass here, with the SAME username, to get the next page. Omit on the first call."
+    ),
+};
+
 export const TOOLS = [
   {
     name: "x_search",
@@ -243,6 +256,89 @@ export const TOOLS = [
       window: z.enum(["24h", "7d"]).optional().describe("Lookback window — 24h (default) or 7d."),
     },
   },
+  // Watchlist-buyer build (2026-09-25): x_list, x_followers, x_following,
+  // x_mentions, x_engagers — mirrors clink-wallet services/x/route.js.
+  {
+    name: "x_list",
+    tier: "list",
+    priceUsd: "0.05",
+    title: "X/Twitter watchlist — many handles, one call ($0.05)",
+    description:
+      "Pass 2-50 handles and get their combined recent posts in ONE call, newest first, deduped, with " +
+      "a per-handle post count and a since-cursor for only-what's-new next time. Use instead of splitting " +
+      "a watchlist into several `from:a OR from:b` x_search calls (X caps how many OR terms one search " +
+      "can carry). No Twitter/X API key required. " +
+      "COSTS $0.05 USDC per call, paid from your configured wallet on Base. " +
+      "No results = no charge. For a single account's own timeline instead, use x_user_timeline.",
+    inputShape: {
+      handles: z
+        .string()
+        .min(1)
+        .max(1000)
+        .describe("2-50 X handles, comma or space separated, @ optional, e.g. \"elonmusk,naval,balajis\"."),
+      since: z
+        .string()
+        .max(40)
+        .optional()
+        .describe("Only return posts newer than this — an ISO timestamp or a numeric tweet ID (pass back `cursor.newest_id` from a previous call)."),
+      limit: z
+        .string()
+        .optional()
+        .describe("Max tweets to return, 1-100 (default 40)."),
+    },
+  },
+  {
+    name: "x_followers",
+    tier: "followers",
+    priceUsd: "0.02",
+    title: "X/Twitter followers — one page of an account's followers ($0.02)",
+    description:
+      "Get one page (up to 20 shown) of an account's followers: handle, display name, bio, follower/" +
+      "following counts, verified status, DM-open flag. Use for audience research, influencer vetting, " +
+      "or lead sourcing from a specific account's follower base. No Twitter/X API key required. " +
+      "COSTS $0.02 USDC per call, paid from your configured wallet on Base. " +
+      "For who an account follows instead, use x_following.",
+    inputShape: usernamePagedShape,
+  },
+  {
+    name: "x_following",
+    tier: "following",
+    priceUsd: "0.02",
+    title: "X/Twitter following — one page of who an account follows ($0.02)",
+    description:
+      "Get one page (up to 20 shown) of who an account follows: handle, display name, bio, follower/" +
+      "following counts, verified status. Use to map an account's network or see who a founder pays " +
+      "attention to. No Twitter/X API key required. " +
+      "COSTS $0.02 USDC per call, paid from your configured wallet on Base. " +
+      "For that account's own followers instead, use x_followers.",
+    inputShape: usernamePagedShape,
+  },
+  {
+    name: "x_mentions",
+    tier: "mentions",
+    priceUsd: "0.02",
+    title: "X/Twitter mentions — tweets mentioning a handle ($0.02)",
+    description:
+      "Get one page (up to 20 shown) of tweets mentioning a handle: author, follower count, text, " +
+      "timestamp, permalink, engagement. Use for brand monitoring, reputation tracking, or seeing who's " +
+      "talking about an account. No Twitter/X API key required. " +
+      "COSTS $0.02 USDC per call, paid from your configured wallet on Base. " +
+      "For that account's own posts instead, use x_user_timeline.",
+    inputShape: usernamePagedShape,
+  },
+  {
+    name: "x_engagers",
+    tier: "engagers",
+    priceUsd: "0.05",
+    title: "X/Twitter engagers — who quoted/retweeted one post ($0.05)",
+    description:
+      "Pass a tweet ID and get who quoted it and who retweeted it (up to 20 each): handle, display " +
+      "name, bio, follower count, verified status. Use to find amplifiers, gauge real reach vs vanity " +
+      "metrics, or source leads from a viral post's audience. No Twitter/X API key required. " +
+      "COSTS $0.05 USDC per call, paid from your configured wallet on Base. " +
+      "No engagement found = no charge. For the reply thread instead, use x_replies.",
+    inputShape: tweetIdShape,
+  },
 ];
 
 // tier -> API path. Kept next to the catalog so adding a tier is a one-file edit.
@@ -259,4 +355,9 @@ export const TIER_PATHS = {
   account_verdict: "/x/account-verdict",
   watch: "/x/watch",
   ticker_pulse: "/x/ticker-pulse",
+  list: "/x/list",
+  followers: "/x/followers",
+  following: "/x/following",
+  mentions: "/x/mentions",
+  engagers: "/x/engagers",
 };

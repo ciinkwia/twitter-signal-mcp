@@ -17,6 +17,11 @@ x_find_accounts    $0.02/call    accounts matching a name/topic, not posts
 x_account_verdict  $0.02/call    AI read on whether an account is worth engaging
 x_watch            $0.05/call    only the posts newer than your last check
 x_ticker_pulse     $0.02/call    facts about a US stock ticker's X activity — no sentiment/advice
+x_list             $0.05/call    2-50 handles' combined recent posts, one call, no OR-splitting
+x_followers        $0.02/call    one page of an account's followers
+x_following        $0.02/call    one page of who an account follows
+x_mentions         $0.02/call    one page of posts mentioning a handle
+x_engagers         $0.05/call    who quoted / who retweeted one post
 ```
 
 ## Why this exists
@@ -121,6 +126,51 @@ dividend, buyback, CEO). Inputs: `ticker` (required, 1-6 letters, with or withou
 `window` (optional, `24h` default or `7d`). Use: `x_ticker_pulse ticker="TSLA" window="24h"`.
 **FACTS ONLY** — counts and keyword matches, never a sentiment verdict, price target, or
 buy/sell/hold signal.
+
+### `x_list` — $0.05
+A watchlist of 2-50 handles' combined recent posts in ONE call, newest first, deduped, with a
+per-handle post count and a since-cursor for only-what's-new next time — instead of splitting a
+watchlist into several `from:a OR from:b` `x_search` calls (X caps how many OR terms one search
+can carry):
+
+```json
+{
+  "handle_count": 3, "result_count": 40, "truncated": true,
+  "per_handle_counts": { "elonmusk": 20, "naval": 12, "balajis": 8 },
+  "cursor": { "newest_id": "1967000000000000001" },
+  "tweets": [{ "author": "elonmusk", "text": "...", "likes": 1234 }]
+}
+```
+
+Inputs: `handles` (required — comma or space separated, `@` optional, 2-50 handles), `since`
+(optional — ISO timestamp or a tweet ID from `cursor.newest_id`), `limit` (optional, 1-100,
+default 40). Use: `x_list handles="elonmusk,naval,balajis"` to check a watchlist in one call.
+
+### `x_followers` — $0.02
+One page (up to 20 shown) of an account's followers: handle, name, bio, follower/following counts,
+verified status, DM-open flag. Inputs: `username` (required), `cursor` (optional, from a prior
+call's `next.older`). Use: `x_followers username="elonmusk"` for audience research or lead sourcing.
+
+### `x_following` — $0.02
+One page (up to 20 shown) of who an account follows — same shape as `x_followers`. Inputs:
+`username` (required), `cursor` (optional). Use: `x_following username="elonmusk"` to map an
+account's network.
+
+### `x_mentions` — $0.02
+One page (up to 20 shown) of posts mentioning a handle: author, follower count, text, timestamp,
+permalink, engagement. Inputs: `username` (required), `cursor` (optional). Use:
+`x_mentions username="cursor_ai"` for brand monitoring or reputation tracking.
+
+### `x_engagers` — $0.05
+Who quoted and who retweeted one post (up to 20 each): handle, name, bio, follower count, verified
+status:
+
+```json
+{ "id": "1878000000000000000", "quote_count": 5, "retweeter_count": 40, "quotes": [], "retweeters": [] }
+```
+
+Input: `id` (required, same as `x_tweet`). Use: `x_engagers id="1878000000000000000"` to find
+amplifiers or source leads from a viral post's audience.
 
 ### Query syntax (`x_search`, `x_digest`, `x_leads`, `x_find_accounts`, `x_watch`)
 Both tools take one `query` string:
