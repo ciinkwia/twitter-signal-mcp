@@ -7,3 +7,4 @@ tmp/
 mcp-publisher
 mcp-publisher.exe
 *.tar.gz
+publish-*.bat
