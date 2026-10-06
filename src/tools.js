@@ -1,6 +1,6 @@
 // Tool catalog — transport- and payment-agnostic.
 //
-// Twelve tools, mirroring the twelve paid tiers of the X Signal API. Kept
+// Nineteen tools, mirroring the paid tiers of the X Signal API. Kept
 // separate (rather than one tool with a `mode` arg) so the price of each is
 // explicit in the tool description and the agent must deliberately choose the
 // pricier tier. Each tool declares its OWN `inputShape` — the MCP wiring in
@@ -62,11 +62,11 @@ export const TOOLS = [
     priceUsd: "0.02",
     title: "X/Twitter search — live tweets ($0.02)",
     description:
-      "Search X/Twitter for live posts using full advanced-search syntax. Returns up to 20 of the " +
-      "newest matching tweets with author handle, follower count, text, timestamp, permalink, and " +
-      "engagement (likes, retweets, replies, views). Use for real-time social monitoring, breaking " +
-      "news, crypto/stock chatter, brand mentions, competitor tracking, or checking what a specific " +
-      "account just posted. No Twitter/X API key required. " +
+      "Search X/Twitter for any topic, ticker, hashtag or account and get the 20 newest matching " +
+      "tweets as clean JSON: text, author, followers, likes, retweets, views, URL. Operators: from:user, " +
+      "\"exact phrase\", #hashtag, min_faves:, lang:, since:/until:. Use for real-time social monitoring, " +
+      "breaking news, crypto/stock chatter, brand mentions, or competitor tracking. No Twitter/X API key " +
+      "or login required. " +
       "COSTS $0.02 USDC per call, paid from your configured wallet on Base. " +
       "No results = no charge, and the same call repeated within 10 minutes is free. " +
       "Need more than 20? Don't slice dates by hand — pass the `cursor` from the answer's `next.older` " +
@@ -339,6 +339,46 @@ export const TOOLS = [
       "No engagement found = no charge. For the reply thread instead, use x_replies.",
     inputShape: tweetIdShape,
   },
+  // 2026-10-05: x_person was added to the shop on 2026-09-23 but never mirrored
+  // here (closing that gap), and x_leads_deep is the new one-call leads chain.
+  {
+    name: "x_person",
+    tier: "person",
+    priceUsd: "0.15",
+    title: "X/Twitter person card — enriched profile for one handle ($0.15)",
+    description:
+      "Send a handle, get an enriched PERSON CARD: name, role, company, what they work on, topics, " +
+      "seniority guess, and contact routes (emails found on their own site/bio, LinkedIn, GitHub, X " +
+      "DM-open flag), plus facts like followers, account age, posts/week, website. Use for lead gen, " +
+      "recruiting, sales prospecting, or cofounder search. An email is only reported if actually found, " +
+      "never guessed. No Twitter/X API key required. " +
+      "COSTS $0.15 USDC per call, paid from your configured wallet on Base — set X402_MAX_PRICE to at " +
+      "least 0.15 (the default 0.05 refuses it before anything is signed). " +
+      "Profile not found = no charge. For the cheap bio/stats lookup only, use x_profile ($0.02).",
+    inputShape: usernameShape,
+  },
+  {
+    name: "x_leads_deep",
+    tier: "leads_deep",
+    priceUsd: "0.20",
+    title: "X/Twitter deep lead finder — the whole search-to-contact chain in one call ($0.20)",
+    description:
+      "One call does the whole chain: searches up to 4 pages of X, finds the PEOPLE behind the posts, " +
+      "enriches the top 10-15 with their own website (emails, LinkedIn, GitHub), and clusters them with " +
+      "a one-line why-they-match per person. Use for recruiting, B2B prospecting, or cofounder/investor " +
+      "search — instead of hand-chaining search, profile and contact lookups. No Twitter/X API key required. " +
+      "COSTS $0.20 USDC per call, paid from your configured wallet on Base. " +
+      "No results = no charge, and the same call repeated within 10 minutes is free. " +
+      "Cheaper first look: x_leads ($0.05). Requires X402_MAX_PRICE >= 0.20 in your config.",
+    inputShape: {
+      query: z.string().min(1).max(500).describe(QUERY_DESC),
+      max: z
+        .string()
+        .regex(/^(1[0-5]|[1-9])$/)
+        .optional()
+        .describe("How many people to enrich, \"1\" to \"15\" (default \"10\")."),
+    },
+  },
 ];
 
 // tier -> API path. Kept next to the catalog so adding a tier is a one-file edit.
@@ -360,4 +400,6 @@ export const TIER_PATHS = {
   following: "/x/following",
   mentions: "/x/mentions",
   engagers: "/x/engagers",
+  person: "/x/person",
+  leads_deep: "/x/leads-deep",
 };

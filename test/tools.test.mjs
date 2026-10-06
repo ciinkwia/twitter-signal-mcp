@@ -21,9 +21,11 @@ assert.deepEqual(
     "x_followers",
     "x_following",
     "x_leads",
+    "x_leads_deep",
     "x_list",
     "x_mentions",
     "x_pain_points",
+    "x_person",
     "x_profile",
     "x_replies",
     "x_search",
@@ -32,7 +34,7 @@ assert.deepEqual(
     "x_user_timeline",
     "x_watch",
   ],
-  "tool catalog should list all 17 tools"
+  "tool catalog should list all 19 tools"
 );
 
 for (const tool of TOOLS) {
@@ -86,7 +88,23 @@ assert.equal(byName.x_engagers.priceUsd, "0.05");
 assert.ok("id" in byName.x_engagers.inputShape, "x_engagers should declare id");
 assert.equal(TIER_PATHS.engagers, "/x/engagers");
 
-console.log("tool catalog: OK (17 tools, all priced with an inputShape)");
+// 2026-10-05: x_person (mirror gap closed) + x_leads_deep.
+assert.equal(byName.x_person.priceUsd, "0.15");
+assert.ok("username" in byName.x_person.inputShape, "x_person should declare username");
+assert.equal(TIER_PATHS.person, "/x/person");
+assert.equal(byName.x_leads_deep.priceUsd, "0.20");
+assert.ok("query" in byName.x_leads_deep.inputShape, "x_leads_deep should declare query");
+assert.ok("max" in byName.x_leads_deep.inputShape, "x_leads_deep should declare optional max");
+assert.equal(TIER_PATHS.leads_deep, "/x/leads-deep");
+assert.ok(/X402_MAX_PRICE >= 0\.20/.test(byName.x_leads_deep.description), "x_leads_deep description must say the price ceiling it needs");
+assert.ok(/X402_MAX_PRICE/.test(byName.x_person.description), "x_person description must say the price ceiling it needs");
+assert.equal(byName.x_leads_deep.inputShape.max.safeParse("15").success, true);
+assert.equal(byName.x_leads_deep.inputShape.max.safeParse("16").success, false);
+assert.equal(byName.x_leads_deep.inputShape.max.safeParse("0").success, false);
+assert.equal(buildUrl("https://x.test", TIER_PATHS.leads_deep, { query: "rust", max: "5" }), "https://x.test/x/leads-deep?query=rust&max=5");
+assert.equal(buildUrl("https://x.test", TIER_PATHS.person, { username: "naval" }), "https://x.test/x/person?username=naval");
+
+console.log("tool catalog: OK (19 tools, all priced with an inputShape)");
 
 // ---- URL building --------------------------------------------------------------
 const BASE = "https://clink-lithium-vault.fly.dev";

@@ -22,6 +22,8 @@ x_followers        $0.02/call    one page of an account's followers
 x_following        $0.02/call    one page of who an account follows
 x_mentions         $0.02/call    one page of posts mentioning a handle
 x_engagers         $0.05/call    who quoted / who retweeted one post
+x_person           $0.15/call    one handle's enriched person card (role, company, contact routes)
+x_leads_deep       $0.20/call    the whole search-to-contact leads chain in one call, people enriched + clustered
 ```
 
 ## Why this exists
@@ -172,6 +174,30 @@ status:
 Input: `id` (required, same as `x_tweet`). Use: `x_engagers id="1878000000000000000"` to find
 amplifiers or source leads from a viral post's audience.
 
+### `x_person` — $0.15
+Send a handle, get an enriched person card: name, role, company, what they work on, topics,
+seniority guess, and contact routes (emails found on their own site or bio, LinkedIn, GitHub, DM-open
+flag), plus facts (followers, account age, posts/week, website). An email is only reported if it was
+actually found, never guessed. Input: `username` (required). Use: `x_person username="naval"`.
+**Needs `X402_MAX_PRICE` of at least `0.15`** (see Setup).
+
+### `x_leads_deep` — $0.20
+The whole search → profile → contact chain in one call. Searches up to 4 pages, groups the posts by
+author, enriches the top 10-15 people with their own website (emails, LinkedIn, GitHub), and clusters
+them with a one-line why-they-match each:
+
+```json
+{
+  "pages_fetched": 4, "lead_count": 10, "enriched_count": 7,
+  "clusters": [{ "theme": "Solidity engineers", "lead_usernames": ["someone"] }],
+  "leads": [{ "username": "someone", "emails": [], "web": { "emails": [], "links": {}, "title": "..." }, "card": { "why_they_match": "..." } }]
+}
+```
+
+Inputs: `query` (required, same syntax as `x_search`), `max` (optional, `"1"` to `"15"`, default `"10"`).
+Nothing found = nothing charged. **Needs `X402_MAX_PRICE` of at least `0.20`** (see Setup). Cheaper
+first look: `x_leads`.
+
 ### Query syntax (`x_search`, `x_digest`, `x_leads`, `x_find_accounts`, `x_watch`)
 Both tools take one `query` string:
 
@@ -218,9 +244,10 @@ Create one at [portal.cdp.coinbase.com](https://portal.cdp.coinbase.com) (API ke
 ```
 
 `X402_MAX_PRICE` is a hard per-call ceiling in USD. If the endpoint ever quotes more than this,
-the request is refused **before** anything is signed — no charge. The default `0.05` already covers
-every tool above (the priciest are `x_digest`, `x_leads`, `x_pain_points`, and `x_watch` at $0.05) —
-you don't need to raise it.
+the request is refused **before** anything is signed — no charge. The default `0.05` covers every
+tool except the two premium ones: `x_person` ($0.15) and `x_leads_deep` ($0.20). Set
+`X402_MAX_PRICE` to `0.25` to unlock them (the default stays `0.05` on purpose, so an agent can't
+spend more than you expect).
 
 ## Cost & safety
 
