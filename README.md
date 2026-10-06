@@ -184,6 +184,15 @@ Both tools take one `query` string:
 | Language / dates | `lang:en since:2026-08-01 until:2026-08-09` |
 | Exclusions | `airdrop -giveaway` |
 
+## Quick start (copy-paste)
+
+Four ready-made files in [`examples/`](./examples):
+
+- [`examples/claude-desktop.json`](./examples/claude-desktop.json) — Claude Desktop config block
+- [`examples/claude-code.md`](./examples/claude-code.md) — `claude mcp add` one-liner + Cursor `mcp.json`
+- [`examples/x402-fetch.mjs`](./examples/x402-fetch.mjs) — plain Node script, no MCP, pays from a private-key wallet
+- [`examples/credits-curl.sh`](./examples/credits-curl.sh) — no wallet: prepaid credits bought by card + a Bearer key
+
 ## Setup
 
 You need a Coinbase CDP wallet funded with a little USDC on Base — that wallet pays per call.
